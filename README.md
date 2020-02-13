@@ -8,10 +8,10 @@ Features:
   * MQTT
 
 # MQTT
-Channel: /\<hostname\>/mode  
+Channel: /\<hostname\>/mode/  
 These channel are set the Mode of the Strip
   
-Channel: /\<hostname\>/led  
+Channel: /\<hostname\>/led/  
 Byte Array with 3Bytes per LED
 
 # Art-Net
