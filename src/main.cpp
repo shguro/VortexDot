@@ -89,8 +89,9 @@ WiFiManagerParameter custom_mqtt_port("port", "mqtt port", mqtt_port, 6);
 #define MQTT 2
 #define RING 3
 #define RAINBOW 4
+#define FLASK 5
 
-int mode = RING;
+int mode = FLASK;
 
 
 //******************************************//
@@ -98,7 +99,7 @@ int mode = RING;
 //******************************************//
 static uint16_t tick = 0xffff;
 long unsigned lastTime = 0;
-uint16_t fps = 50;
+uint16_t fps = 60;
 
 
 //******************************************//
@@ -110,6 +111,11 @@ uint16_t fps = 50;
 #define MAX(x,y) ((x) >= (y) ? (x) : (y))
 #define MIN(x,y) ((x) <= (y) ? (x) : (y))
 
+//******************************************//
+//-------------Animation(kolben)------------//
+//******************************************//
+#define NUM_UV_LEDS 14
+#define NUM_RGB_LEDS 82
 
 void onDmxFrame(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t* data)
 {
@@ -181,7 +187,7 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
 
 //animations
 
-//calsic tube
+//classic tube
 void render_rings (const uint16_t t)
 {
   static uint16_t positions[NUM_RINGS];
@@ -238,6 +244,33 @@ void render_rings (const uint16_t t)
   FastLED.show();
 }
 
+//Flask standard animation
+
+void render_flask (const uint16_t t)
+{
+  static uint16_t uv_leds[NUM_UV_LEDS] = {0,1,7,15,23,31,39,47,55,63,71,79,87,95};
+  static uint16_t rgb_leds[NUM_RGB_LEDS] = {2,3,4,5,6,8,9,10,11,12,13,14,16,17,18,19,20,21,22,24,25,26,27,28,29,30,32,33,34,35,36,37,38,40,41,42,43,44,45,46,48,49,50,51,52,53,54,56,57,58,59,60,61,62,64,65,66,67,68,69,70,72,73,74,75,76,77,78,80,81,82,83,84,85,86,88,89,90,91,92,93,94};
+
+  uint8_t uv_col=0;
+  uint8_t rgb_col=0;
+
+  float uv_freq=1.0f;
+  float rgb_freq=3.0f;
+
+  float uv_speed=0.1f;
+  float rgb_speed=0.05f;
+
+  for(i=0;i<NUM_UV_LEDS;i++){
+      uv_col=255*(.5+.5*sin((i+t*uv_speed)*2.0f*M_PI*uv_freq/float(NUM_UV_LEDS-1)));
+      leds[uv_leds[i]].setRGB(uv_col, uv_col, uv_col);
+  }
+  for(i=0;i<NUM_RGB_LEDS;i++){
+      rgb_col=80*MAX(0.0f,(-.3+sin((i+t*rgb_speed)*2.0f*M_PI*rgb_freq/float(NUM_RGB_LEDS-1))));
+      leds[rgb_leds[i]].setRGB(rgb_col, 0, 0);
+  }
+
+  FastLED.show();
+}
 
 void setup() {
   //******************************************//
@@ -440,6 +473,10 @@ void loop() {
         fill_solid( leds, numLEDS, CRGB::Black);
         FastLED.show();
         break;
+      case FLASK:
+        render_flask(tick);
+        break;
+      
     }
     //animation tick
     tick--;
