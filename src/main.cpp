@@ -7,6 +7,7 @@
 //******************************************//
 //---------------FastLED--Block-------------//
 //******************************************//
+#define FASTLED_INTERNAL
 #define FASTLED_USE_GLOBAL_BRIGHTNESS 1
 #include <FastLED.h>
 
@@ -108,8 +109,14 @@ uint16_t fps = 60;
 #define NUM_RINGS 6
 #define RING_RESOLUTION 1
 #define RING_WIDTH 5
+
+#ifndef MAX
 #define MAX(x,y) ((x) >= (y) ? (x) : (y))
+#endif
+
+#ifndef MIN
 #define MIN(x,y) ((x) <= (y) ? (x) : (y))
+#endif
 
 //******************************************//
 //-------------Animation(kolben)------------//
@@ -172,12 +179,12 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
     Serial.println(mode);
   }else if (!strcmp(topic,mqtt_channel_led) && mode == MQTT){
     Serial.println("test");
-    for (int i = 0; i < length && i < numLEDS*3; i+=3){
+    for (unsigned int i = 0; i < length && i < numLEDS*3; i+=3){
       leds[i/3].setRGB(payload[i], payload[i+1], payload[i+2]);
     }
     FastLED.show();
   }
-  for (int i = 0; i < length; i++) {
+  for (unsigned int i = 0; i < length; i++) {
     Serial.print((char)payload[i]);
   }
   Serial.println();
