@@ -7,6 +7,7 @@
 //******************************************//
 //---------------FastLED--Block-------------//
 //******************************************//
+#define FASTLED_INTERNAL
 #define FASTLED_USE_GLOBAL_BRIGHTNESS 1
 #include <FastLED.h>
 
@@ -108,8 +109,14 @@ uint16_t fps = 60;
 #define NUM_RINGS 6
 #define RING_RESOLUTION 1
 #define RING_WIDTH 5
+
+#ifndef MAX
 #define MAX(x,y) ((x) >= (y) ? (x) : (y))
+#endif
+
+#ifndef MIN
 #define MIN(x,y) ((x) <= (y) ? (x) : (y))
+#endif
 
 //******************************************//
 //-------------Animation(kolben)------------//
@@ -172,12 +179,12 @@ void mqttCallback(char* topic, byte* payload, unsigned int length) {
     Serial.println(mode);
   }else if (!strcmp(topic,mqtt_channel_led) && mode == MQTT){
     Serial.println("test");
-    for (int i = 0; i < length && i < numLEDS*3; i+=3){
+    for (unsigned int i = 0; i < length && i < numLEDS*3; i+=3){
       leds[i/3].setRGB(payload[i], payload[i+1], payload[i+2]);
     }
     FastLED.show();
   }
-  for (int i = 0; i < length; i++) {
+  for (unsigned int i = 0; i < length; i++) {
     Serial.print((char)payload[i]);
   }
   Serial.println();
@@ -248,8 +255,8 @@ void render_rings (const uint16_t t)
 
 void render_flask (const uint16_t t)
 {
-  static uint16_t uv_leds[NUM_UV_LEDS] = {0,1,7,15,23,31,39,47,55,63,71,79,87,95};
-  static uint16_t rgb_leds[NUM_RGB_LEDS] = {2,3,4,5,6,8,9,10,11,12,13,14,16,17,18,19,20,21,22,24,25,26,27,28,29,30,32,33,34,35,36,37,38,40,41,42,43,44,45,46,48,49,50,51,52,53,54,56,57,58,59,60,61,62,64,65,66,67,68,69,70,72,73,74,75,76,77,78,80,81,82,83,84,85,86,88,89,90,91,92,93,94};
+  static uint8_t uv_leds[NUM_UV_LEDS] = {0,1,7,15,23,31,39,47,55,63,71,79,87,95};
+  static uint8_t rgb_leds[NUM_RGB_LEDS] = {2,3,4,5,6,8,9,10,11,12,13,14,16,17,18,19,20,21,22,24,25,26,27,28,29,30,32,33,34,35,36,37,38,40,41,42,43,44,45,46,48,49,50,51,52,53,54,56,57,58,59,60,61,62,64,65,66,67,68,69,70,72,73,74,75,76,77,78,80,81,82,83,84,85,86,88,89,90,91,92,93,94};
 
   uint8_t uv_col=0;
   uint8_t rgb_col=0;
@@ -260,11 +267,11 @@ void render_flask (const uint16_t t)
   float uv_speed=0.1f;
   float rgb_speed=0.05f;
 
-  for(i=0;i<NUM_UV_LEDS;i++){
+  for(uint8_t i=0;i<NUM_UV_LEDS;i++){
       uv_col=255*(.5+.5*sin((i+t*uv_speed)*2.0f*M_PI*uv_freq/float(NUM_UV_LEDS-1)));
       leds[uv_leds[i]].setRGB(uv_col, uv_col, uv_col);
   }
-  for(i=0;i<NUM_RGB_LEDS;i++){
+  for(uint8_t i=0;i<NUM_RGB_LEDS;i++){
       rgb_col=80*MAX(0.0f,(-.3+sin((i+t*rgb_speed)*2.0f*M_PI*rgb_freq/float(NUM_RGB_LEDS-1))));
       leds[rgb_leds[i]].setRGB(rgb_col, 0, 0);
   }
